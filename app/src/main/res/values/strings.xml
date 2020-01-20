@@ -3,5 +3,6 @@
     <string name="enter_text">Enter text</string>
     <string name="untranslate">Untranslate</string>
     <string name="translated_through">Translated through %s\n%s</string>
-    <string name="error">Sorry, something went wrong!</string>
+    <string name="api_error">Google Translate returned an error.\nPlease try again in a moment.</string>
+    <string name="error">Sorry, something went wrong!\nPlease try again in a moment.</string>
 </resources>

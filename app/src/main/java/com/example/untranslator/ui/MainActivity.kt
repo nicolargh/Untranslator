@@ -11,6 +11,7 @@ import com.example.untranslator.R
 import com.example.untranslator.data.LanguageCode
 import com.example.untranslator.model.MainViewModel
 import com.example.untranslator.model.TranslationAction
+import com.example.untranslator.model.TranslationViewState
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -29,8 +30,8 @@ class MainActivity : AppCompatActivity() {
 
                 untranslated_text.text = when {
                     it.toText.isNotEmpty() -> it.toText
-                    it.numTranslations > 0 -> getString(R.string.error)
-                    else -> ""
+                    it.error == null -> ""
+                    else -> getString(if (it.error is TranslationViewState.Error.Api) R.string.api_error else R.string.error)
                 }
             } else {
                 progress_bar.visibility = View.VISIBLE

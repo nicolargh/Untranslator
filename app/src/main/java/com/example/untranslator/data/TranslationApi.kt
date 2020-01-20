@@ -12,7 +12,7 @@ import java.net.URLEncoder
 
 sealed class TranslationResult {
     class Success(val text: String) : TranslationResult()
-    object Error : TranslationResult()
+    class Error(val isApiError: Boolean) : TranslationResult()
 }
 
 class TranslationApi {
@@ -33,7 +33,7 @@ class TranslationApi {
         return try {
             getResponse(url)
         } catch (exception: Exception) {
-            TranslationResult.Error
+            TranslationResult.Error(false)
         }
     }
 
@@ -52,7 +52,7 @@ class TranslationApi {
         }
 
         return if (response.toString().contains(ERROR_IDENTIFIER)) {
-            TranslationResult.Error
+            TranslationResult.Error(true)
         } else {
             TranslationResult.Success(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

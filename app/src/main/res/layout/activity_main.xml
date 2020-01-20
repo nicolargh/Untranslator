@@ -8,22 +8,18 @@
     android:orientation="vertical"
     tools:context=".ui.MainActivity">
 
-    <TextView
-        android:id="@+id/enter_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:labelFor="@id/read_text"
-        android:paddingTop="50dp"
-        android:text="@string/enter_text" />
-
     <EditText
         android:id="@+id/read_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
+        android:background="@drawable/editbox_background"
+        android:padding="12dp"
+        android:gravity="top"
+        android:hint="@string/enter_text"
         android:importantForAutofill="no"
-        android:maxLines="5" />
+        android:maxLines="5"
+        android:minLines="3" />
 
     <Button
         android:id="@+id/untranslate_button"
@@ -31,20 +27,24 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="12dp"
-        android:text="@string/untranslate" />
+        android:text="@string/untranslate"
+        android:padding="12dp"
+        android:background="@drawable/button_background"/>
 
     <ProgressBar
+        android:padding="12dp"
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:progressDrawable="@drawable/progress_drawable"/>
 
     <TextView
         android:id="@+id/progress_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        tools:text="Translated through French\n Oui"/>
+        tools:text="Translated through French\n Oui" />
 
     <TextView
         android:id="@+id/untranslated_text"

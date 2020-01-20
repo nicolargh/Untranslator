@@ -8,15 +8,22 @@ data class TranslationViewState(
     val toCode: LanguageCode = LanguageCode.English,
     val toText: String = "",
     val progress: Int = 0,
-    val numTranslations: Int = 0
+    val numTranslations: Int = 0,
+    val error: Error? = null
 ) {
+    sealed class Error {
+        object Api : Error()
+        object Other: Error()
+    }
+
     fun onTranslationBegin(fromCode: LanguageCode, fromText: String, numTranslations: Int): TranslationViewState {
         return copy(
             fromCode = fromCode,
             fromText = fromText,
             toText = fromText,
             progress = 0,
-            numTranslations = numTranslations
+            numTranslations = numTranslations,
+            error = null
         )
     }
 
@@ -28,10 +35,11 @@ data class TranslationViewState(
         )
     }
 
-    fun onTranslationError(): TranslationViewState {
+    fun onTranslationError(isApiError: Boolean): TranslationViewState {
         return copy(
             toText = "",
-            progress = numTranslations
+            progress = numTranslations,
+            error = if (isApiError) Error.Api else Error.Other
         )
     }
 }
