@@ -5,21 +5,35 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.example.untranslator.R
+import com.example.untranslator.data.LanguageCode
+import com.example.untranslator.model.MainViewModel
+import com.example.untranslator.model.TranslationAction
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    lateinit var viewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        
+
+        viewModel = MainViewModel.Factory().getViewModel(this)
+        viewModel.liveData.observe(this, Observer {
+            untranslated_text.text = it.toText
+        })
+
         untranslate_button.setOnClickListener {
             val toTranslate = read_text.text.toString()
 
-            // translate
-
-            untranslated_text.text = toTranslate
+            viewModel.dispatchTranslation(TranslationAction(
+                fromCode = LanguageCode.English,
+                toCode = LanguageCode.English,
+                text = toTranslate,
+                numTranslations = 5
+            ))
         }
     }
 
