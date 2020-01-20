@@ -3,6 +3,7 @@ package com.example.untranslator.ui
 import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -22,7 +23,20 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = MainViewModel.Factory().getViewModel(this)
         viewModel.liveData.observe(this, Observer {
-            untranslated_text.text = it.toText
+            if (it.progress == it.numTranslations) {
+                progress_bar.visibility = View.GONE
+                progress_text.visibility = View.GONE
+
+                untranslated_text.text = it.toText
+            } else {
+                progress_bar.visibility = View.VISIBLE
+                progress_text.visibility = View.VISIBLE
+
+                progress_bar.max = it.numTranslations
+                progress_bar.progress = it.progress
+                progress_text.text = getString(R.string.translated_through, it.toCode.toString(), it.toText)
+                untranslated_text.text = ""
+            }
         })
 
         untranslate_button.setOnClickListener {

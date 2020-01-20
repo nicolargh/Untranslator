@@ -6,7 +6,6 @@ import com.example.untranslator.data.LanguageCode
 import com.example.untranslator.data.TranslationApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class TranslationAction(
@@ -24,24 +23,34 @@ class MainViewModel(private val translationApi: TranslationApi) : ViewModel() {
     }
 
     private fun translate(action: TranslationAction) {
+        liveData.postValue(
+            liveData.value?.onTranslationBegin(
+                fromCode = action.fromCode,
+                fromText = action.text,
+                numTranslations = action.numTranslations
+            )
+        )
+
         viewModelScope.launch {
             var text = action.text
             var from = action.fromCode
             var to = LanguageCode.values().random()
-            (0 until action.numTranslations - 1).forEach { _ ->
+            (1 until action.numTranslations).forEach {
                 text = getTranslation(text, from.code, to.code)
+                liveData.postValue(
+                    liveData.value?.onTranslationProgress(to, text, it)
+                )
+
                 from = to
                 to = LanguageCode.values().random()
             }
             text = getTranslation(text, from.code, action.toCode.code)
 
             liveData.postValue(
-                TranslationViewState(
-                    fromCode = action.fromCode,
-                    fromText = action.text,
-                    toCode = action.toCode,
-                    toText = text,
-                    numTranslations = action.numTranslations
+                liveData.value?.onTranslationProgress(
+                    progressCode = action.toCode,
+                    progressText = text,
+                    progress = action.numTranslations
                 )
             )
         }
