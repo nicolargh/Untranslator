@@ -20,6 +20,8 @@ class MainViewModel(private val translationApi: TranslationApi) : ViewModel() {
     val liveData = MutableLiveData<TranslationViewState>(TranslationViewState())
 
     fun dispatchTranslation(action: TranslationAction) {
+        if (action.text.isBlank()) return
+
         liveData.postValue(
             liveData.value?.onTranslationBegin(
                 fromCode = action.fromCode,
@@ -33,7 +35,7 @@ class MainViewModel(private val translationApi: TranslationApi) : ViewModel() {
             var from = action.fromCode
             var to = LanguageCode.values().random()
             (1 until action.numTranslations).forEach lit@{
-                when(val result = getTranslation(text, from.code, to.code)) {
+                when (val result = getTranslation(text, from.code, to.code)) {
                     is TranslationResult.Error -> {
                         postTranslationError(result.isApiError)
                         return@lit
@@ -46,9 +48,13 @@ class MainViewModel(private val translationApi: TranslationApi) : ViewModel() {
                     }
                 }
             }
-            when(val finalResult = getTranslation(text, from.code, action.toCode.code)) {
+            when (val finalResult = getTranslation(text, from.code, action.toCode.code)) {
                 is TranslationResult.Error -> postTranslationError(finalResult.isApiError)
-                is TranslationResult.Success -> postTranslationSuccess( action.toCode, finalResult.text, action.numTranslations)
+                is TranslationResult.Success -> postTranslationSuccess(
+                    action.toCode,
+                    finalResult.text,
+                    action.numTranslations
+                )
             }
         }
     }

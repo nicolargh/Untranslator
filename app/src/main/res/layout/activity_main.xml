@@ -19,7 +19,8 @@
         android:hint="@string/enter_text"
         android:importantForAutofill="no"
         android:maxLines="5"
-        android:minLines="3" />
+        android:minLines="3"
+        android:inputType="textMultiLine" />
 
     <Button
         android:id="@+id/untranslate_button"
