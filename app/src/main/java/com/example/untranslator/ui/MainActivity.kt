@@ -27,14 +27,19 @@ class MainActivity : AppCompatActivity() {
                 progress_bar.visibility = View.GONE
                 progress_text.visibility = View.GONE
 
-                untranslated_text.text = it.toText
+                untranslated_text.text = when {
+                    it.toText.isNotEmpty() -> it.toText
+                    it.numTranslations > 0 -> getString(R.string.error)
+                    else -> ""
+                }
             } else {
                 progress_bar.visibility = View.VISIBLE
                 progress_text.visibility = View.VISIBLE
 
                 progress_bar.max = it.numTranslations
                 progress_bar.progress = it.progress
-                progress_text.text = getString(R.string.translated_through, it.toCode.toString(), it.toText)
+                progress_text.text =
+                    getString(R.string.translated_through, it.toCode.toString(), it.toText)
                 untranslated_text.text = ""
             }
         })
@@ -42,18 +47,20 @@ class MainActivity : AppCompatActivity() {
         untranslate_button.setOnClickListener {
             val toTranslate = read_text.text.toString()
 
-            viewModel.dispatchTranslation(TranslationAction(
-                fromCode = LanguageCode.English,
-                toCode = LanguageCode.English,
-                text = toTranslate,
-                numTranslations = 5
-            ))
+            viewModel.dispatchTranslation(
+                TranslationAction(
+                    fromCode = LanguageCode.English,
+                    toCode = LanguageCode.English,
+                    text = toTranslate,
+                    numTranslations = 5
+                )
+            )
         }
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         // hide keyboard on click away from edit text
-        currentFocus?.let {view ->
+        currentFocus?.let { view ->
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.windowToken, 0)
         }

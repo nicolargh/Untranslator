@@ -4,9 +4,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.lang.Exception
 import java.net.URL
 import java.net.URLEncoder
 
+sealed class TranslationResult {
+    class Success(val text: String) : TranslationResult()
+    object Error : TranslationResult()
+}
 
 class TranslationApi {
     companion object {
@@ -14,17 +19,22 @@ class TranslationApi {
         // view script here: https://script.google.com/d/1YrUKgBhlEAkn1zRLAk5j5qGmR5gTNKNLuAtBvxKXIFwFIFYbaZR9dpaE/edit?usp=sharing
         private const val TRANSLATE_URL =
             "https://script.google.com/macros/s/AKfycbygX9ACBLFFp2acIqzBa6Sl36ZYioq8fq3C5e8xo0rVzOffJjNz/exec"
+        private const val ERROR_IDENTIFIER = "<title>Error</title>"
     }
 
-    suspend fun translate(text: String, from: String, to: String): String {
+    suspend fun translate(text: String, from: String, to: String): TranslationResult {
         val encodedText = URLEncoder.encode(text, "UTF-8")
         val url = URL(
             "$TRANSLATE_URL?q=$encodedText&target=$to&source=$from"
         )
-        return getResponse(url)
+        return try {
+            getResponse(url)
+        } catch (exception: Exception) {
+            TranslationResult.Error
+        }
     }
 
-    private suspend fun getResponse(url: URL): String {
+    private suspend fun getResponse(url: URL): TranslationResult {
         val response = StringBuilder()
         withContext(Dispatchers.IO) {
             val connection = url.openConnection()
@@ -38,7 +48,11 @@ class TranslationApi {
             readIn.close()
         }
 
-        return response.toString()
+        return if (response.toString().contains(ERROR_IDENTIFIER)) {
+            TranslationResult.Error
+        } else {
+            TranslationResult.Success(response.toString())
+        }
     }
 
 }

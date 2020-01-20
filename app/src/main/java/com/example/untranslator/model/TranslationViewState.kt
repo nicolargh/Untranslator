@@ -27,4 +27,11 @@ data class TranslationViewState(
             progress = progress
         )
     }
+
+    fun onTranslationError(): TranslationViewState {
+        return copy(
+            toText = "",
+            progress = numTranslations
+        )
+    }
 }

@@ -4,6 +4,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import com.example.untranslator.data.LanguageCode
 import com.example.untranslator.data.TranslationApi
+import com.example.untranslator.data.TranslationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,31 +36,43 @@ class MainViewModel(private val translationApi: TranslationApi) : ViewModel() {
             var text = action.text
             var from = action.fromCode
             var to = LanguageCode.values().random()
-            (1 until action.numTranslations).forEach {
-                text = getTranslation(text, from.code, to.code)
-                liveData.postValue(
-                    liveData.value?.onTranslationProgress(to, text, it)
-                )
-
-                from = to
-                to = LanguageCode.values().random()
+            (1 until action.numTranslations).forEach lit@{
+                when(val result = getTranslation(text, from.code, to.code)) {
+                    is TranslationResult.Error -> {
+                        postTranslationError()
+                        return@lit
+                    }
+                    is TranslationResult.Success -> {
+                        postTranslationSuccess(to, result.text, it)
+                        text = result.text
+                        from = to
+                        to = LanguageCode.values().random()
+                    }
+                }
             }
-            text = getTranslation(text, from.code, action.toCode.code)
-
-            liveData.postValue(
-                liveData.value?.onTranslationProgress(
-                    progressCode = action.toCode,
-                    progressText = text,
-                    progress = action.numTranslations
-                )
-            )
+            when(val finalResult = getTranslation(text, from.code, action.toCode.code)) {
+                is TranslationResult.Error -> postTranslationError()
+                is TranslationResult.Success -> postTranslationSuccess( action.toCode, finalResult.text, action.numTranslations)
+            }
         }
     }
 
-    private suspend fun getTranslation(text: String, from: String, to: String): String {
+    private suspend fun getTranslation(text: String, from: String, to: String): TranslationResult {
         return withContext(Dispatchers.Default) {
             translationApi.translate(text, from, to)
         }
+    }
+
+    private fun postTranslationError() {
+        liveData.postValue(
+            liveData.value?.onTranslationError()
+        )
+    }
+
+    private fun postTranslationSuccess(toCode: LanguageCode, text: String, progress: Int) {
+        liveData.postValue(
+            liveData.value?.onTranslationProgress(toCode, text, progress)
+        )
     }
 
     class Factory : ViewModelProvider.Factory {
